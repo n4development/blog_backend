@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="row" style="border-bottom: 2px black solid; margin-bottom: 10px">
+    <h2 class="text-left col-md-9">{{post.subject}}</h2>
+    <h4 class="text-right col-md-3" style="margin-top: 30px">{{post.created.strftime("%b %d,%Y")}}</h4>
+</div>
+<div class="row">
+    <p>{{post.content}}</p>
+</div>
+{% if editable %}
+<a  href="/blog/edit/{{post.key().id()}}" class="btn btn-primary">Edit Post</a>
+<a  href="/blog/delete/{{post.key().id()}}" class="btn btn-danger">Delete Post</a>
+{%endif%}
+{% endblock %}

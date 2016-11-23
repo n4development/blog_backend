@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="row" style="border-bottom: 2px black solid; margin-bottom: 10px">
+    <h2 class="text-left col-md-9">{{post.subject}}</h2>
+    <h4 class="text-right col-md-3" style="margin-top: 30px">{{post.created.strftime("%b %d,%Y")}}</h4>
+</div>
+<div class="row">
+    <p>{{post.content}}</p>
+</div>
+<form method="post">
+    <p class="bg-danger">Are you sure you want delete this post ..</p>
+    <div class="form-group">
+        <input type="submit" value="DELETE">
+    </div>
+</form>
+{% endblock %}

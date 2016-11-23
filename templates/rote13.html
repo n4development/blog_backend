@@ -1,0 +1,10 @@
+{% extends "base.html" %}
+{% block content %}
+<h2>Enter some text to ROT13:</h2>
+    <form method="post">
+        <div>
+        <textarea cols="50" rows="10" name="text">{{decode}}</textarea>
+        </div>
+        <input type="submit">
+    </form>
+{% endblock %}

@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+{% block content %}
+<h1 class="text-center">Blog List</h1>
+    {%for post in posts%}
+    <div class="row" style="border-bottom: 2px black solid; margin-bottom: 10px">
+        <h2 class="text-left col-md-9">{{post.subject}}</h2>
+        <h4 class="text-right col-md-3" style="margin-top: 30px">{{post.created.strftime("%b %d,%Y")}}</h4>
+    </div>
+    <div class="row">
+        <p>{{post.content|truncate(200)}}</p>
+        <a  href="/blog/{{post.key().id()}}">...read more</a>
+    </div>
+    <hr>
+    {%endfor%}
+{% endblock %}

@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <link rel="stylesheet" type="text/css" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+    <style>
+        .danger{
+            color: red;
+        }
+    </style>
+</head>
+<body>
+<nav class="navbar navbar-default ">
+  <div class="container">
+    {% if user %}
+      Hi, {{user.name}}!
+      <a href="/blog/newpost" class="btn btn-default navbar-btn navbar-right ">new post</a>
+      <a href="/logout" class="btn btn-default navbar-btn navbar-right ">logout</a>
+    {% else %}
+       <a href="/login" class="btn btn-default navbar-btn navbar-right ">login</a>
+       <a href="/signup" class="btn btn-default navbar-btn navbar-right ">signup</a>
+    {% endif %}
+  </div>
+</nav>
+
+    <div class="container">
+        {% block content %}
+        {% endblock %}
+    </div>
+</body>
+</html>
