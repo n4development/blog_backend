@@ -104,6 +104,54 @@ class Post(db.Model):
         post = Post.by_id(pid)
         return post and post.created_by == cid
 
+# Comment Model
+
+
+class Comment(db.Model):
+    content = db.TextProperty(required=True)
+    created = db.DateTimeProperty(auto_now_add=True)
+    created_by = db.StringProperty(required=True)
+    post = db.StringProperty(required=True)
+
+    @classmethod
+    def by_id(cls, pid):
+        key = db.Key.from_path('Comment', int(pid))
+        return db.get(key)
+
+    @classmethod
+    def by_creator(cls, cid):
+        return cls.all().filter(cls.created_by == cid).fetch(limit=5)
+
+    @classmethod
+    def by_post(cls, post):
+        return Comment.all().filter('post =', post).fetch(limit=5)
+
+    # Comment Model
+
+
+class Like(db.Model):
+    created = db.DateTimeProperty(auto_now_add=True)
+    created_by = db.StringProperty(required=True)
+    post = db.StringProperty(required=True)
+
+    @classmethod
+    def by_id(cls, pid):
+        key = db.Key.from_path('Comment', int(pid))
+        return db.get(key)
+
+    @classmethod
+    def by_creator(cls, cid):
+        return Like.all().filter('created_by = ',cid).get()
+
+    @classmethod
+    def by_post(cls, post):
+        return Like.all().filter('post =', post).fetch(limit=5)
+
+    @classmethod
+    def by_post_user(cls, post, cid):
+        return Like.all().filter('created_by =', cid).filter('post =', post).get()
+
+
 # User Model
 
 
@@ -147,11 +195,11 @@ class NewPost(Handler):
         if self.user:
             self.render("newpost.html")
         else:
-            self.redirect("/login")
+            return self.redirect("/login")
 
     def post(self):
         if not self.user:
-            self.redirect('/blog')
+            return self.redirect('/login')
 
         subject = self.request.get('subject')
         content = self.request.get('content')
@@ -163,6 +211,46 @@ class NewPost(Handler):
         else:
             error = "subject and content, please!"
             self.render("newpost.html", subject=subject, content=content, error=error)
+
+
+class NewComment(Handler):
+
+    def post(self, post_id):
+        if not self.user:
+            return self.redirect('/login')
+
+        content = self.request.get('content')
+        if content:
+            c = Comment(content=content, created_by=self.read_secure_cookie('user_id'), post=post_id)
+            c.put()
+            return self.redirect('/blog/%s' % str(post_id))
+        else:
+            error = "content, please!"
+            return self.redirect('/blog/%s?error=%s' % (str(post_id), error))
+
+
+class LikePost(Handler):
+
+    def post(self, post_id):
+        post = Post.by_id(post_id)
+        if not self.user or post.created_by == self.read_secure_cookie('user_id'):
+            return self.redirect('/login')
+
+        l = Like(created_by=self.read_secure_cookie('user_id'), post=post_id)
+        l.put()
+        return self.redirect('/blog/%s' % str(post_id))
+
+
+class UNLikePost(Handler):
+
+    def post(self, post_id, like_id):
+        post = Post.by_id(post_id)
+        if not self.user or post.created_by == self.read_secure_cookie('user_id'):
+            return self.redirect('/login')
+
+        liked = Like.by_post_user(post_id, self.read_secure_cookie('user_id'))
+        liked.delete()
+        return self.redirect('/blog/%s' % str(post_id))
 
 
 class Register(Handler):
@@ -232,14 +320,15 @@ class Login(Handler):
 
 class PostPage(Handler):
     def get(self, post_id):
+        errors = self.request.get('error')
         post = Post.by_id(post_id)
         edit_able = Post.is_editable(self.read_secure_cookie('user_id'), post_id)
-        print ">>>>>"+str(edit_able)
         if not post:
             self.error(404)
             return
-
-        self.render("single_post.html", post=post, editable=edit_able)
+        comments = Comment.by_post(post_id)
+        liked = Like.by_post_user(post_id, self.read_secure_cookie('user_id'))
+        self.render("single_post.html", post=post, editable=edit_able, comments=comments, liked=liked, error=errors)
 
 
 class PostEditPage(Handler):
@@ -309,6 +398,9 @@ app = webapp2.WSGIApplication([('/', MainPage),
                                ('/blog/edit/([0-9]+)', PostEditPage),
                                ('/blog/delete/([0-9]+)', PostDelete),
                                ('/blog/newpost', NewPost),
+                               ('/blog/new_comment/([0-9]+)', NewComment),
+                               ('/blog/like/([0-9]+)', LikePost),
+                               ('/blog/unlike/([0-9]+)/([0-9]+)', UNLikePost),
                                ('/signup', Register),
                                ('/login', Login),
                                ('/logout', Logout),

@@ -6,9 +6,48 @@
 </div>
 <div class="row">
     <p>{{post.content}}</p>
+    {% if editable %}
+    <a  href="/blog/edit/{{post.key().id()}}" class="btn btn-primary">Edit Post</a>
+    <a  href="/blog/delete/{{post.key().id()}}" class="btn btn-danger">Delete Post</a>
+    {% else %}
+        {% if user %}
+            {% if liked %}
+    you like this post
+            <form method="post" action="/blog/unlike/{{post.key().id()}}/{{liked.key().id()}}">
+                <span class="glyphicon glyphicon-thumbs-up" ></span>you like this post |
+                <button class="btn btn-default" type="submit"><span class="glyphicon glyphicon-thumbs-down" aria-hidden="true"></span></button>
+            </form>
+            {% else %}
+            <form method="post" action="/blog/like/{{post.key().id()}}">
+                <button class="btn btn-default" type="submit"><span class="glyphicon glyphicon-thumbs-up" aria-hidden="true"></span></button>
+            </form>
+            {%endif%}
+        {%endif%}
+    {%endif%}
+
 </div>
-{% if editable %}
-<a  href="/blog/edit/{{post.key().id()}}" class="btn btn-primary">Edit Post</a>
-<a  href="/blog/delete/{{post.key().id()}}" class="btn btn-danger">Delete Post</a>
-{%endif%}
+
+<div class="row" style="margin: 10px">
+    {%for comment in comments%}
+        <blockquote>
+        <p>{{comment.content}}</p>
+        <footer>{{comment.created.strftime("%b %d,%Y")}}</footer>
+        </blockquote>
+    {%endfor%}
+</div>
+
+
+{% if user %}
+ <form method="post" action="/blog/new_comment/{{post.key().id()}}">
+    <div class="form-group">
+        <label>Comment</label>
+        <textarea style="height: 100px;" class="form-control" name="content">{{content}}</textarea>
+    </div>
+    <span class="danger">{{error}}</span>
+    <div class="form-group">
+        <input type="submit">
+    </div>
+</form>
+{% endif %}
+
 {% endblock %}
