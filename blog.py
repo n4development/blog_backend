@@ -389,7 +389,7 @@ class PostDelete(Handler):
 class Logout(Handler):
     def get(self):
         self.logout()
-        self.redirect('/')
+        return self.redirect('/signup')
 
 
 app = webapp2.WSGIApplication([('/', MainPage),
