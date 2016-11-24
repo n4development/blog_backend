@@ -340,7 +340,7 @@ class PostEditPage(Handler):
             self.error(404)
             return
 
-        self.render("edit_post.html", subject=post.subject, content=post.content)
+        self.render("edit_post.html", subject=post.subject, content=post.content, post=post_id)
 
     def post(self, post_id):
 
